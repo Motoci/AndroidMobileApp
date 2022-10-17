@@ -1,29 +1,28 @@
 package com.example.myapplication;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.myapplication.utils.BottomNavigationViewHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
-public class MainActivity extends AppCompatActivity {
+public class ShareActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
-    private static final int ACTIVITY_NUM = 0;
+    private static final String TAG = "ShareActivity";
+    private static final int ACTIVITY_NUM = 2;
+    private final Context mContext = ShareActivity.this;
 
-    private final Context mContext = MainActivity.this;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+     @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(TAG, "onCreate: starting.");
+        Log.d(TAG, "onCreate: started.");
 
         setupBottomNavigationView();
     }
