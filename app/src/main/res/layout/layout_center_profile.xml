@@ -62,7 +62,7 @@
                     android:id="@+id/display_name"
                     android:textColor="@color/black"
                     android:textStyle="bold"
-                    android:text="Motoci"
+                    android:text="@string/description_on_profile_page"
                     android:textSize="16sp"/>
 
                 <TextView
@@ -71,7 +71,7 @@
                     android:id="@+id/description"
                     android:textColor="@color/black"
                     android:textStyle="bold"
-                    android:text="Say hello to my little friend"
+                    android:text="@string/username_on_profile_page"
                     android:textSize="16sp"/>
 
                 <TextView
@@ -80,7 +80,7 @@
                     android:id="@+id/website"
                     android:textColor="@color/black"
                     android:textStyle="bold"
-                    android:text="https://website"
+                    android:text="@string/website_on_profile_page"
                     android:textSize="16sp"
                     android:layout_marginTop="5dp"/>
 

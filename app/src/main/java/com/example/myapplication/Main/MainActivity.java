@@ -1,20 +1,24 @@
 package com.example.myapplication.Main;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.ViewPager;
-
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
+
+import com.example.myapplication.Login.LoginActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.utils.BottomNavigationViewHelper;
 import com.example.myapplication.utils.SectionsPagerAdapter;
 import com.example.myapplication.utils.UniversalImageLoader;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int ACTIVITY_NUM = 0;
 
     private final Context mContext = MainActivity.this;
+
+    //Firebase
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         initImageLoader();
         setupBottomNavigationView();
         setupViewPager();
+
     }
 
     private void initImageLoader() {
@@ -72,5 +80,21 @@ public class MainActivity extends AppCompatActivity {
         Menu menu = bottomNavigationView.getMenu();
         MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
         menuItem.setChecked(true);
+        mAuth = FirebaseAuth.getInstance();
+
+    }
+
+    /*
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Firebase ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     */
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser user = mAuth.getCurrentUser();
+        // if user not signed in, send to sign-in page
+        if (user == null) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        }
     }
 }

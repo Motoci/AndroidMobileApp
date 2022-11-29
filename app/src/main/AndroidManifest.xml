@@ -12,6 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication"
+        android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
         <activity
             android:name=".Main.MainActivity"
@@ -31,6 +32,7 @@
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".Search.SearchActivity"/>
         <activity android:name=".Share.ShareActivity"/>
+        <activity android:name=".Login.LoginActivity"/>
+        <activity android:name=".Login.RegisterActivity"/>
     </application>
-
 </manifest>
