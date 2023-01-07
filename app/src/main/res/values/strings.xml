@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">My Application</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="sign_out_fragment">Sign Out</string>
     <string name="EmailHint">Email</string>
@@ -11,6 +10,12 @@
     <string name="username_on_profile_page">Motoci</string>
     <string name="description_on_profile_page">Ka-Chow</string>
     <string name="website_on_profile_page">https://website</string>
+
+    <!--  Firebase messages  -->
     <string name="auth_failed">Authentication has failed</string>
     <string name="auth_success">Authentication successful</string>
+
+    <!--  Firebase database fields  -->
+    <string name="db_users">users</string>
+    <string name="db_user_account_settings">user_account_settings</string>
 </resources>

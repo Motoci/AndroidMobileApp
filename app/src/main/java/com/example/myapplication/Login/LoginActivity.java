@@ -56,9 +56,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean isStringNull(String string) {
         Log.d(TAG, "isStringNull: checking if string null.");
-
-        if (string.equals("")) return true;
-        else return false;
+        return string.equals("");
     }
 
     private void init() {
@@ -73,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                 String email = mEmail.getText().toString();
                 String password = mPassword.getText().toString();
 
-                if (isStringNull(email) && isStringNull(password)) {
+                if (isStringNull(email) || isStringNull(password)) {
                     Toast.makeText(mContext, "You must fill out all the fields", Toast.LENGTH_SHORT).show();
                 } else {
                     mProgressBar.setVisibility(View.VISIBLE);
@@ -90,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                                         the signed in user can be handled by the listener
                                      */
                                     if (!task.isSuccessful()) {
-                                        Log.w(TAG, "onComplete: failed", task.getException());
+                                        Log.w(TAG, "failed login", task.getException());
 
                                         Toast.makeText(LoginActivity.this, getString(R.string.auth_failed),
                                                 Toast.LENGTH_SHORT).show();
@@ -118,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         if (mAuth.getCurrentUser() != null) {
-            // if user is signed in, navigate tot Main page
+            // if user is signed in, navigate to Main page
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
