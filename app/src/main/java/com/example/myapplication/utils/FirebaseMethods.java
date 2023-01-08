@@ -1,14 +1,11 @@
 package com.example.myapplication.utils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.myapplication.Login.LoginActivity;
-import com.example.myapplication.Login.RegisterActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.model.User;
 import com.example.myapplication.model.UserAccountSettings;
@@ -16,9 +13,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.Objects;
 
 public class FirebaseMethods {
     private static final String TAG = "FirebaseMethods";
@@ -43,12 +43,12 @@ public class FirebaseMethods {
         }
     }
 
-    public boolean checkIfUsernameAlreadyExists(String username, DataSnapshot dataSnapshot) {
+    public boolean checkIfUsernameExists(String username, DataSnapshot dataSnapshot) {
         Log.d(TAG, "checkIfUsernameAlreadyExists: checking if " + username + " already exists.");
 
         User user = new User();
 
-        for (DataSnapshot ds: dataSnapshot.getChildren()) {
+        for (DataSnapshot ds: dataSnapshot.child(userID).getChildren()) {
             Log.d(TAG, "checkIfUsernameAlreadyExists: datasnapshot: " + ds);
 
             user.setUsername(ds.getValue(User.class).getUsername());
@@ -68,9 +68,7 @@ public class FirebaseMethods {
      * @param password
      * @param username
      */
-    public void registerNewEmail(final String email,
-                                 final String password,
-                                 final String username) {
+    public void registerNewEmail(final String email, final String password, final String username) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
@@ -81,8 +79,11 @@ public class FirebaseMethods {
                             Toast.LENGTH_SHORT).show();
 
                 } else if (task.isSuccessful()){
+                    // send verification email
+                    sendVerificationEmail();
+
                     Toast.makeText(mContext,"User registered successfully", Toast.LENGTH_SHORT).show();
-                    userID = mAuth.getCurrentUser().getUid();
+                    userID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
                 }
             }
         });
@@ -102,13 +103,28 @@ public class FirebaseMethods {
                 0,
                 0,
                 profile_photo,
-                username);
+                StringManipulation.condenseUsername(username));
 
         myRef.child(mContext.getString(R.string.db_user_account_settings))
                 .child(userID)
                 .setValue(settings);
     }
 
+    public void sendVerificationEmail() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            user.sendEmailVerification()
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (!task.isComplete()) {
+                                Toast.makeText(mContext, "couldn't send verification email.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+    }
 
 
 

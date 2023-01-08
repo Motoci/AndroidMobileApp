@@ -74,16 +74,6 @@
                     android:text="@string/username_on_profile_page"
                     android:textSize="16sp"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/website"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"
-                    android:text="@string/website_on_profile_page"
-                    android:textSize="16sp"
-                    android:layout_marginTop="5dp"/>
-
             </LinearLayout>
 
             <RelativeLayout

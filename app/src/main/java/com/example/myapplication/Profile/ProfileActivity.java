@@ -1,11 +1,13 @@
 package com.example.myapplication.Profile;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -27,6 +29,7 @@ public class ProfileActivity extends AppCompatActivity {
     private static final String TAG = "ProfileActivity";
     private static final int ACTIVITY_NUM = 4;
     private static final int NUM_GRID_COLUMNS = 3;
+
     private final Context mContext = ProfileActivity.this;
     private ProgressBar progressBar;
     private ImageView profilePhoto;
@@ -36,6 +39,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         Log.d(TAG, "onCreate: started.");
+
         progressBar = (ProgressBar) findViewById(R.id.profileProgressBar);
         progressBar.setVisibility(View.GONE);
 
@@ -58,6 +62,7 @@ public class ProfileActivity extends AppCompatActivity {
         imgURLs.add("https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Salon_de_l%27auto_de_Gen%C3%A8ve_2014_-_20140305_-_Chevrolet_Corvette_Stingray_Z06.jpg/1200px-Salon_de_l%27auto_de_Gen%C3%A8ve_2014_-_20140305_-_Chevrolet_Corvette_Stingray_Z06.jpg");
         imgURLs.add("https://tb.ziareromania.ro/Prinsi-in-timp-ce-furau-o-masina-cu----caruta/322a3e322a09a0f3/400/225/2/100/Prinsi-in-timp-ce-furau-o-masina-cu----caruta.jpg");
         imgURLs.add("https://i0.wp.com/opiniedecarei.com/wp-content/uploads/2016/08/caruta1.jpg?fit=700%2C492&ssl=1");
+
         setupImageGrid(imgURLs);
     }
 
@@ -99,19 +104,14 @@ public class ProfileActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.profileToolBar);
         setSupportActionBar(toolbar);
 
-        toolbar.setOnMenuItemClickListener(item -> {
-            Log.d(TAG, "onMenuItemClick: clicked menu item: " + item);
-            if (item.getItemId() == R.id.profileMenu) {
-                Log.d(TAG, "onMenuItemClick: Navigating to profile Preferences");
+        ImageView signOut_Image = findViewById(R.id.btn_signout);
 
+        signOut_Image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onMenuItemClick: clicked signOut Button");
+                startActivity(new Intent(mContext, SignOutActivity.class));
             }
-            return false;
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.profile_menu, menu);
-        return true;
     }
 }

@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         setupBottomNavigationView();
         setupViewPager();
 
+//        mAuth.signOut();
     }
 
     private void initImageLoader() {
@@ -118,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "onAuthStateChanged: signed in" + user.getUid());
                 } else {
                     Log.d(TAG, "onAuthStateChanged: signed out");
+
                 }
             }
         };
@@ -131,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);

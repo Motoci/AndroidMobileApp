@@ -1,9 +1,7 @@
 package com.example.myapplication.Login;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,9 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
 import com.example.myapplication.utils.FirebaseMethods;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,20 +23,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
+/*
+    check for Register button binding to firebase SaveToDB method
+ */
 public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
 
     private Button btnRegister;
     private TextView loadingPleaseWait;
-    private TextView mTextView;
     private ProgressBar mProgressBar;
-    private EditText mEmail;
-    private EditText mPassword;
-    private EditText mUsername;
+    private String email, username, password;
+    private EditText mEmail, mPassword, mUsername;
     private Context mContext;
 
+    // firebase
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseMethods firebaseMethods;
@@ -49,7 +45,6 @@ public class RegisterActivity extends AppCompatActivity {
     private DatabaseReference myRef;
 
     private String append = "";
-    private String email, username, password;
 
     /**
      * Initialize activity widgets
@@ -78,15 +73,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         initWidgets();
         setupFirebaseAuth();
-
-        mAuth = FirebaseAuth.getInstance();
-        btnRegister.setOnClickListener(view -> {
-            createUser();
-        });
-
-        mTextView.setOnClickListener(view -> {
-            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-        });
+        registerButtonClicked();
     }
 
     private boolean checkInputs(String email, String password, String username) {
@@ -98,17 +85,22 @@ public class RegisterActivity extends AppCompatActivity {
         return true;
     }
 
-    private void createUser() {
-        email = mEmail.getText().toString();
-        username = mUsername.getText().toString();
-        password = mPassword.getText().toString();
+    private void registerButtonClicked() {
+        btnRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                email = mEmail.getText().toString();
+                username = mUsername.getText().toString();
+                password = mPassword.getText().toString();
 
-        if (checkInputs(email, password, username)) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            loadingPleaseWait.setVisibility(View.VISIBLE);
+                if (checkInputs(email, password, username)) {
+                    mProgressBar.setVisibility(View.VISIBLE);
+                    loadingPleaseWait.setVisibility(View.VISIBLE);
 
-            firebaseMethods.registerNewEmail(email, password, username);
-        }
+                    firebaseMethods.registerNewEmail(email, password, username);
+                }
+            }
+        });
     }
 
     private void setupFirebaseAuth() {
@@ -122,15 +114,16 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
+
                 if (user != null) {
                     // user is signed in
-                    Log.d(TAG, "onAuthStateChanged: signed in: " + user.getUid());
+                    Log.d(TAG, "onAuthStateChanged: signed_in: " + user.getUid());
 
                     myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             // check to make sure the username is not already in use;
-                            if (firebaseMethods.checkIfUsernameAlreadyExists(username, snapshot)) {
+                            if (firebaseMethods.checkIfUsernameExists(username, snapshot)) {
                                 append = myRef.push().getKey().substring(3,10);
                                 Log.d(TAG, "onDataChange: username already exists. Appending random string to it.");
                             }
@@ -141,6 +134,9 @@ public class RegisterActivity extends AppCompatActivity {
                             firebaseMethods.addNewUser(email, username, "", "");
 
                             Toast.makeText(mContext, "Signup successful. Sending verification email.", Toast.LENGTH_SHORT).show();
+
+                            // user is automatically signed in after register, so we need to sign out
+                            mAuth.signOut();
                         }
 
                         @Override
@@ -148,6 +144,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                         }
                     });
+                    // navigates back to previous activity
+                    finish();
                 } else {
                     // user is signed out
                     Log.d(TAG, "onAuthStateChanged: signed out");
@@ -157,13 +155,13 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);

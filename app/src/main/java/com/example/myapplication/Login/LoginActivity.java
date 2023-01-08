@@ -82,6 +82,7 @@ public class LoginActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     Log.d(TAG, "onComplete: signInWithEmail" + task.isSuccessful());
+                                    FirebaseUser user = mAuth.getCurrentUser();
                                     /*
                                         if sign in fails, display a massage to the user. If sign in succeeds
                                         the auth state listener will be notified & logic to handle
@@ -100,12 +101,31 @@ public class LoginActivity extends AppCompatActivity {
                                                 Toast.LENGTH_SHORT).show();
                                         mProgressBar.setVisibility(View.GONE);
                                         mPleaseWait.setVisibility(View.GONE);
+                                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+
+                                    /*
+                                        try {
+                                            if (user.isEmailVerified()) {
+                                                Log.d(TAG, "onComplete: success. email is verified.");
+                                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                            } else {
+                                                Toast.makeText(mContext, "Email is not verified \n check your inbox.", Toast.LENGTH_SHORT).show();
+                                                mProgressBar.setVisibility(View.GONE);
+                                                mPleaseWait.setVisibility(View.GONE);
+                                                // make sure to be signed out
+                                                mAuth.signOut();
+                                            }
+                                        } catch (NullPointerException e) {
+                                            Log.e(TAG, "onComplete: NullPointerException" + e.getMessage());
+                                        }
+                                     */
                                     }
                                 }
                             });
                 }
             }
         });
+
         TextView linkSignUp = (TextView) findViewById(R.id.link_signup);
         linkSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
