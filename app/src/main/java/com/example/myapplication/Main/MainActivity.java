@@ -22,6 +22,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+/*
+    Fragments have a different stack than activities
+    Fragments don't keep track of their stack, you have to track it manually
+
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";

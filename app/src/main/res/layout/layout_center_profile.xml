@@ -6,20 +6,10 @@
         android:layout_height="match_parent"
         android:background="@color/white">
 
-        <!-- ***************** Top NameBar ****************  -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:id="@+id/relLayout1">
-
-            <include layout="@layout/snippet_top_profilebar"/>
-        </RelativeLayout>
-
         <!-- ***************** Middle section ****************  -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/relLayout1"
             android:id="@+id/relLayout2"
             android:background="@drawable/white_grey_border_bottom">
 
@@ -31,9 +21,10 @@
                 android:weightSum="100">
 
                 <RelativeLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:gravity="center">
+                    android:layout_weight="25"
+                    android:layout_marginStart="25dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:layout_marginTop="20dp"
@@ -44,6 +35,16 @@
                         app:civ_border_color="@color/black"
                         app:civ_border_width="2dp"/>
 
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="75"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginEnd="30dp">
+
+                    <include layout="@layout/snippet_top_profile"/>
                 </RelativeLayout>
 
             </LinearLayout>
