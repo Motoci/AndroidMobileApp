@@ -16,8 +16,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import org.w3c.dom.CDATASection;
 
 import java.util.Objects;
 
@@ -44,23 +49,13 @@ public class FirebaseMethods {
         }
     }
 
-    public boolean checkIfUsernameExists(String username, DataSnapshot dataSnapshot) {
-        Log.d(TAG, "checkIfUsernameAlreadyExists: checking if " + username + " already exists.");
+    public void updateUsername(String username) {
+        Log.d(TAG, "updateUsername: updating username to: " + username);
 
-        User user = new User();
-
-        for (DataSnapshot ds: dataSnapshot.child(userID).getChildren()) {
-            Log.d(TAG, "checkIfUsernameAlreadyExists: datasnapshot: " + ds);
-
-            user.setUsername(ds.getValue(User.class).getUsername());
-            Log.d(TAG, "checkIfUsernameAlreadyExists: username: " + user.getUsername());
-
-            if (StringManipulation.expandUsername(user.getUsername()).equals(username)) {
-                Log.d(TAG, "checkIfUsernameAlreadyExists: Found a match: " + user.getUsername());
-                return true;
-            }
-        }
-        return false;
+        myRef.child(mContext.getString(R.string.db_users))
+                .child(userID)
+                .child(mContext.getString(R.string.field_username))
+                .setValue(username);
     }
 
     /**
@@ -218,14 +213,4 @@ public class FirebaseMethods {
         }
         return new UserSettings(user, settings);
     }
-
-
-
-
-
-
-
-
-
-
 }

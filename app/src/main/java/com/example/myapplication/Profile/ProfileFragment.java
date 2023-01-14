@@ -25,6 +25,7 @@ import com.example.myapplication.model.UserAccountSettings;
 import com.example.myapplication.model.UserSettings;
 import com.example.myapplication.utils.BottomNavigationViewHelper;
 import com.example.myapplication.utils.FirebaseMethods;
+import com.example.myapplication.utils.UniversalImageLoader;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,7 +48,7 @@ public class ProfileFragment extends Fragment {
     private Toolbar toolbar;
     private GridView gridView;
     private BottomNavigationView bottomNavigationView;
-    private ImageView signOut_Button;
+    private ImageView profileMenu;
 
     private Context mContext;
 
@@ -69,13 +70,14 @@ public class ProfileFragment extends Fragment {
         mUserName = view.findViewById(R.id.username);
         mDescription = view.findViewById(R.id.description);
         mProfilePhoto = view.findViewById(R.id.profile_photo);
-//        mPosts = view.findViewById(R.id.tvPosts);
-//        mFollowers = view.findViewById(R.id.tvFollowers);
-//        mFollowing = view.findViewById(R.id.tvFollowing);
-        mProgressBar = view.findViewById(R.id.progressBar);
+        mPosts = view.findViewById(R.id.tvPosts);
+        mFollowers = view.findViewById(R.id.tvFollowers);
+        mFollowing = view.findViewById(R.id.tvFollowing);
+        mProgressBar = view.findViewById(R.id.profileProgressBar);
         gridView = view.findViewById(R.id.gridView);
-        signOut_Button = view.findViewById(R.id.btn_signout);
         toolbar = view.findViewById(R.id.profileToolBar);
+        toolbar = view.findViewById(R.id.profileToolBar);
+        profileMenu = view.findViewById(R.id.profileMenu);
         bottomNavigationView = view.findViewById(R.id.bottomNavViewBar);
         mContext = getActivity();
         mFirebaseMethods = new FirebaseMethods(getActivity());
@@ -84,6 +86,17 @@ public class ProfileFragment extends Fragment {
         setupBottomNavigationView();
         setupToolBar();
         setupFirebaseAuth();
+
+        TextView editProfile = view.findViewById(R.id.textEditProfile);
+        editProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: navigating to " + mContext.getString(R.string.edit_profile_fragment));
+                Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
+                intent.putExtra(getString(R.string.calling_activity), getString(R.string.profile_activity));
+                startActivity(intent);
+            }
+        });
 
         return view;
     }
@@ -96,10 +109,14 @@ public class ProfileFragment extends Fragment {
         mDisplayName.setText(settings.getDisplay_name());
         mUserName.setText(settings.getUsername());
         mDescription.setText(settings.getDescription());
-//        mPosts.setText(String.valueOf(settings.getPosts()));
-//        mFollowers.setText(String.valueOf(settings.getFollowers()));
-//        mFollowing.setText(String.valueOf(settings.getFollowing()));
+        mPosts.setText(String.valueOf(settings.getPosts()));
+        mFollowers.setText(String.valueOf(settings.getFollowers()));
+        mFollowing.setText(String.valueOf(settings.getFollowing()));
+        mProgressBar.setVisibility(View.GONE);
 
+        Log.d(TAG, "profilePhotoLink: " + userSettings.getSettings().getProfile_photo());
+        String profileImgUrl = userSettings.getSettings().getProfile_photo();
+        UniversalImageLoader.setImage(profileImgUrl, mProfilePhoto, mProgressBar, "");
     }
 
     // BottomNavigationView setup
@@ -112,16 +129,13 @@ public class ProfileFragment extends Fragment {
         menuItem.setChecked(true);
     }
 
-        private void setupToolBar() {
+    private void setupToolBar() {
 
             ((ProfileActivity)getActivity()).setSupportActionBar(toolbar);
 
-        signOut_Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onMenuItemClick: clicked signOut Button");
-                startActivity(new Intent(mContext, SignOutActivity.class));
-            }
+        profileMenu.setOnClickListener(v -> {
+            Log.d(TAG, "onMenuItemClick: clicked signOut Button");
+            startActivity(new Intent(mContext, AccountSettingsActivity.class));
         });
     }
 

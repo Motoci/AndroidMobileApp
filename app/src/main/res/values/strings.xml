@@ -14,11 +14,23 @@
     <string name="auth_failed">Authentication has failed</string>
     <string name="auth_success">Authentication successful</string>
 
+    <!-- Intent Extras -->
+    <string name="calling_activity">calling_activity</string>
+
+    <!-- Fragment names -->
+    <string name="edit_profile_fragment">Edit Profile</string>
+
+    <!-- activity names -->
+    <string name="profile_activity">Profile Activity</string>
+
     <!--  Firebase database fields  -->
     <string name="db_users">users</string>
     <string name="db_user_account_settings">user_account_settings</string>
+    <string name="field_username">username</string>
 
     <string name="are_you_sure_you_want_to_sign_out">Are you sure you want to sign out?</string>
     <string name="sign_out">Sign Out</string>
     <string name="profile_fragment">Profile</string>
+    <string name="options">Options</string>
+    <string name="account_settings">Account Settings</string>
 </resources>

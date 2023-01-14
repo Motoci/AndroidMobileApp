@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.myapplication.R;
+import com.example.myapplication.model.User;
 import com.example.myapplication.utils.FirebaseMethods;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,6 +23,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 /*
     check for Register button binding to firebase SaveToDB method
@@ -122,21 +124,7 @@ public class RegisterActivity extends AppCompatActivity {
                     myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            // check to make sure the username is not already in use;
-                            if (firebaseMethods.checkIfUsernameExists(username, snapshot)) {
-                                append = myRef.push().getKey().substring(3,10);
-                                Log.d(TAG, "onDataChange: username already exists. Appending random string to it.");
-                            }
-                            username = username + append;
-
-                            // add new user to the db
-                            // add new user_account_settings to the db
-                            firebaseMethods.addNewUser(email, username, "", "");
-
-                            Toast.makeText(mContext, "Signup successful. Sending verification email.", Toast.LENGTH_SHORT).show();
-
-                            // user is automatically signed in after register, so we need to sign out
-                            mAuth.signOut();
+                            checkIfUsernameExists(username);
                         }
 
                         @Override
@@ -152,6 +140,44 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         };
+    }
+
+    private void checkIfUsernameExists(final String username) {
+        Log.d(TAG, "checkIfUsernameExists: cheching if: " + username + " already exists.");
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        Query query = reference
+                .child(mContext.getString(R.string.db_users))
+                .orderByChild(mContext.getString(R.string.field_username))
+                .equalTo(username);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot singleSnapshot: snapshot.getChildren()) {
+                    if (singleSnapshot.exists()) {
+                        Log.d(TAG, "onDataChange: FOUND A MATCH: " + singleSnapshot.getValue(User.class).getUsername());
+                        append = myRef.push().getKey().substring(3,10);
+                        Log.d(TAG, "onDataChange: username already exists. Appending random string to it.");
+                    }
+                }
+                String mUsername = "";
+                mUsername = username + append;
+
+                // add new user to the db
+                // add new user_account_settings to the db
+                firebaseMethods.addNewUser(email, mUsername, "", "");
+
+                Toast.makeText(mContext, "Signup successful. Sending verification email.", Toast.LENGTH_SHORT).show();
+
+                // user is automatically signed in after register, so we need to sign out
+                mAuth.signOut();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override

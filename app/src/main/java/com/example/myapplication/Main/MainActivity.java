@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         setupBottomNavigationView();
         setupViewPager();
 
-//        mAuth.signOut();
     }
 
     private void initImageLoader() {
