@@ -21,7 +21,6 @@ import com.example.myapplication.R;
 import com.example.myapplication.utils.BottomNavigationViewHelper;
 import com.example.myapplication.utils.SectionsStatePagerAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
 
 import java.util.ArrayList;
 
@@ -50,7 +49,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
         getIncomingIntent();
 
         // setup the backarrow for navigating back to "ProfileActivity"
-        ImageView backArrow = (ImageView) findViewById(R.id.backArrow);
+        ImageView backArrow = findViewById(R.id.backArrow);
         backArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
