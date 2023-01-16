@@ -38,7 +38,7 @@ public class PhotoFragment extends Fragment {
                         Log.d(TAG, "onClick: starting camera");
                         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         startActivity(cameraIntent);
-//                        startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
+                        startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
                 }
             }
         });
@@ -46,14 +46,14 @@ public class PhotoFragment extends Fragment {
         return view;
     }
 
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if(requestCode == CAMERA_REQUEST_CODE){
-//            Log.d(TAG, "onActivityResult: done taking a photo.");
-//            Log.d(TAG, "onActivityResult: attempting to navigate to final share screen.");
-//            //navigate to the final share screen to publish photo
-//        }
-//    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == CAMERA_REQUEST_CODE){
+            Log.d(TAG, "onActivityResult: done taking a photo.");
+            Log.d(TAG, "onActivityResult: attempting to navigate to final share screen.");
+            //navigate to the final share screen to publish photo
+        }
+    }
 }
