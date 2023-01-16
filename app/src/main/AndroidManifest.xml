@@ -11,6 +11,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        tools:replace="android:theme"
         android:theme="@style/Theme.MyApplication"
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
@@ -35,5 +36,6 @@
         <activity android:name=".Login.LoginActivity"/>
         <activity android:name=".Login.RegisterActivity"/>
         <activity android:name=".Profile.AccountSettingsActivity"/>
+        <activity android:name=".Share.NextActivity"/>
     </application>
 </manifest>
