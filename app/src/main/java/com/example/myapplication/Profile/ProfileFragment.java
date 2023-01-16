@@ -59,13 +59,11 @@ public class ProfileFragment extends Fragment {
     private DatabaseReference myRef;
     private FirebaseMethods mFirebaseMethods;
 
-    public ProfileFragment() {
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        mContext = getActivity();
         mDisplayName = view.findViewById(R.id.display_name);
         mUserName = view.findViewById(R.id.username);
         mDescription = view.findViewById(R.id.description);
@@ -76,10 +74,8 @@ public class ProfileFragment extends Fragment {
         mProgressBar = view.findViewById(R.id.profileProgressBar);
         gridView = view.findViewById(R.id.gridView);
         toolbar = view.findViewById(R.id.profileToolBar);
-        toolbar = view.findViewById(R.id.profileToolBar);
         profileMenu = view.findViewById(R.id.profileMenu);
         bottomNavigationView = view.findViewById(R.id.bottomNavViewBar);
-        mContext = getActivity();
         mFirebaseMethods = new FirebaseMethods(getActivity());
         Log.d(TAG, "onCreateView: started");
 
@@ -87,15 +83,12 @@ public class ProfileFragment extends Fragment {
         setupToolBar();
         setupFirebaseAuth();
 
-        TextView editProfile = view.findViewById(R.id.textEditProfile);
-        editProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: navigating to " + mContext.getString(R.string.edit_profile_fragment));
-                Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
-                intent.putExtra(getString(R.string.calling_activity), getString(R.string.profile_activity));
-                startActivity(intent);
-            }
+        TextView editProfile = view.findViewById(R.id.EditProfileMenu);
+        editProfile.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: navigating to " + mContext.getString(R.string.edit_profile_fragment));
+            Intent intent = new Intent(getActivity(), AccountSettingsActivity.class);
+            intent.putExtra(getString(R.string.calling_activity), getString(R.string.profile_activity));
+            startActivity(intent);
         });
 
         return view;
@@ -103,9 +96,10 @@ public class ProfileFragment extends Fragment {
 
     private void setProfileWidgets(UserSettings userSettings) {
         Log.d(TAG, "setProfileWidgets: setting widgets with data from DB");
-        User user = userSettings.getUser();
+//        User user = userSettings.getUser();
         UserAccountSettings settings = userSettings.getSettings();
 
+        UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
         mDisplayName.setText(settings.getDisplay_name());
         mUserName.setText(settings.getUsername());
         mDescription.setText(settings.getDescription());
@@ -113,10 +107,6 @@ public class ProfileFragment extends Fragment {
         mFollowers.setText(String.valueOf(settings.getFollowers()));
         mFollowing.setText(String.valueOf(settings.getFollowing()));
         mProgressBar.setVisibility(View.GONE);
-
-        Log.d(TAG, "profilePhotoLink: " + userSettings.getSettings().getProfile_photo());
-        String profileImgUrl = userSettings.getSettings().getProfile_photo();
-        UniversalImageLoader.setImage(profileImgUrl, mProfilePhoto, mProgressBar, "");
     }
 
     // BottomNavigationView setup
@@ -131,7 +121,7 @@ public class ProfileFragment extends Fragment {
 
     private void setupToolBar() {
 
-            ((ProfileActivity)getActivity()).setSupportActionBar(toolbar);
+        ((ProfileActivity)getActivity()).setSupportActionBar(toolbar);
 
         profileMenu.setOnClickListener(v -> {
             Log.d(TAG, "onMenuItemClick: clicked signOut Button");
@@ -149,7 +139,6 @@ public class ProfileFragment extends Fragment {
         mAuthListener = firebaseAuth -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
 
-
             if (user != null) {
                 Log.d(TAG, "onAuthStateChanged: signed in" + user.getUid());
             } else {
@@ -165,7 +154,9 @@ public class ProfileFragment extends Fragment {
 
                 // retrieve user information from the database
                 setProfileWidgets(mFirebaseMethods.getUserSettings(snapshot));
+
                 // retrieve images for the user
+
             }
 
             @Override

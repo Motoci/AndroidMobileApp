@@ -88,19 +88,16 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerButtonClicked() {
-        btnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                email = mEmail.getText().toString();
-                username = mUsername.getText().toString();
-                password = mPassword.getText().toString();
+        btnRegister.setOnClickListener(v -> {
+            email = mEmail.getText().toString();
+            username = mUsername.getText().toString();
+            password = mPassword.getText().toString();
 
-                if (checkInputs(email, password, username)) {
-                    mProgressBar.setVisibility(View.VISIBLE);
-                    loadingPleaseWait.setVisibility(View.VISIBLE);
+            if (checkInputs(email, password, username)) {
+                mProgressBar.setVisibility(View.VISIBLE);
+                loadingPleaseWait.setVisibility(View.VISIBLE);
 
-                    firebaseMethods.registerNewEmail(email, password, username);
-                }
+                firebaseMethods.registerNewEmail(email, password, username);
             }
         });
     }
@@ -112,36 +109,36 @@ public class RegisterActivity extends AppCompatActivity {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = mFirebaseDatabase.getReference();
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+        mAuthListener = firebaseAuth -> {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                if (user != null) {
-                    // user is signed in
-                    Log.d(TAG, "onAuthStateChanged: signed_in: " + user.getUid());
+            if (user != null) {
+                // user is signed in
+                Log.d(TAG, "onAuthStateChanged: signed_in: " + user.getUid());
 
-                    myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            checkIfUsernameExists(username);
-                        }
+                myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        checkIfUsernameExists(username);
+                    }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
-                        }
-                    });
-                    // navigates back to previous activity
-                    finish();
-                } else {
-                    // user is signed out
-                    Log.d(TAG, "onAuthStateChanged: signed out");
-                }
+                    }
+                });
+                // navigates back to previous activity
+                finish();
+            } else {
+                // user is signed out
+                Log.d(TAG, "onAuthStateChanged: signed out");
             }
         };
     }
 
+    /**
+     * checks if param  username is found in the DB. Append random string if found.
+     */
     private void checkIfUsernameExists(final String username) {
         Log.d(TAG, "checkIfUsernameExists: cheching if: " + username + " already exists.");
 

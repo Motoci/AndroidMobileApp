@@ -14,7 +14,7 @@
             android:text="@string/account_settings"
             android:textSize="35sp"
             android:textColor="@color/black"
-            android:background="@drawable/white_grey_border_bottom"/>
+            android:background="@drawable/grey_border_bottom"/>
 
 
         <ListView

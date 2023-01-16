@@ -33,7 +33,6 @@ public class FirebaseMethods {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference myRef;
-
     private String userID;
 
     private Context mContext;
@@ -50,39 +49,52 @@ public class FirebaseMethods {
     }
 
     public void updateUsername(String username) {
-        Log.d(TAG, "updateUsername: updating username to: " + username);
+        Log.d(TAG, "updateUsername: updating username in both nodes to: " + username);
 
         myRef.child(mContext.getString(R.string.db_users))
                 .child(userID)
                 .child(mContext.getString(R.string.field_username))
                 .setValue(username);
+
+        myRef.child(mContext.getString(R.string.db_user_account_settings))
+                .child(userID)
+                .child(mContext.getString(R.string.field_username))
+                .setValue(username);
+    }
+
+    public void updateEmail(String email) {
+        Log.d(TAG, "updateUsername: updating email in the userNode to: " + email);
+
+        myRef.child(mContext.getString(R.string.db_users))
+                .child(userID)
+                .child(mContext.getString(R.string.field_email))
+                .setValue(email);
+
     }
 
     /**
      * Register a new email and password to firebase authentication
-     * @param email
-     * @param password
-     * @param username
      */
     public void registerNewEmail(final String email, final String password, final String username) {
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (!task.isSuccessful()) {
-                    Toast.makeText(mContext,
-                            "RegistrationError: " + task.getException().getMessage(),
-                            Toast.LENGTH_SHORT).show();
+                .addOnCompleteListener(task -> {
 
-                } else if (task.isSuccessful()){
-                    // send verification email
-                    sendVerificationEmail();
+                    // If sign in fails, display a message to the user. If sign in succeeds
+                    // the auth state listener will be notified and logic to handle the
+                    // signed in user can be handled in the listener.
+                    if (!task.isSuccessful()) {
+                        Toast.makeText(mContext,
+                                "RegistrationError: " + task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
 
-                    Toast.makeText(mContext,"User registered successfully", Toast.LENGTH_SHORT).show();
-                    userID = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-                }
-            }
-        });
+                    } else if (task.isSuccessful()){
+                        // send verification email
+                        sendVerificationEmail();
+
+                        Toast.makeText(mContext,"User registered successfully", Toast.LENGTH_SHORT).show();
+                        userID = mAuth.getCurrentUser().getUid();
+                    }
+                });
     }
 
     public void addNewUser(String email, String username, String description, String profile_photo) {
@@ -111,12 +123,11 @@ public class FirebaseMethods {
 
         if (user != null) {
             user.sendEmailVerification()
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (!task.isComplete()) {
-                                Toast.makeText(mContext, "couldn't send verification email.", Toast.LENGTH_SHORT).show();
-                            }
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+
+                        } else {
+                            Toast.makeText(mContext, "couldn't send verification email.", Toast.LENGTH_SHORT).show();
                         }
                     });
         }

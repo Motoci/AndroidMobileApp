@@ -15,13 +15,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.myapplication.R;
+import com.example.myapplication.dialogs.ConfirmPasswordDialog;
 import com.example.myapplication.model.User;
 import com.example.myapplication.model.UserAccountSettings;
 import com.example.myapplication.model.UserSettings;
 import com.example.myapplication.utils.FirebaseMethods;
 import com.example.myapplication.utils.UniversalImageLoader;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,7 +36,57 @@ import com.google.firebase.database.ValueEventListener;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class EditProfileFragment extends Fragment {
+public class EditProfileFragment extends Fragment  implements ConfirmPasswordDialog.OnConfirmPasswordListener {
+
+    @Override
+    public void onConfirmPassword(String password) {
+        Log.d(TAG, "onConfirmPassword: got the password: " + password);
+
+        // Get auth credentials from the user for re-authentication. The example below shows
+        // email and password credentials but there are multiple possible providers,
+        // such as GoogleAuthProvider or FacebookAuthProvider.
+        AuthCredential credential = EmailAuthProvider
+                .getCredential(mAuth.getCurrentUser().getEmail(), password);
+
+        // Prompt the user to re-provide their sign-in credentials
+        mAuth.getCurrentUser().reauthenticate(credential)
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        Log.d(TAG, "User re-authenticated.");
+
+                        // check to see if the email is not already present in the database
+                        mAuth.fetchSignInMethodsForEmail(mEmail.getText().toString()).addOnCompleteListener((OnCompleteListener<SignInMethodQueryResult>) task1 -> {
+                            if(task1.isSuccessful()){
+                                try {
+                                    if (task1.getResult().getSignInMethods().size() == 1){
+                                        Log.d(TAG, "onComplete: that email is already in use.");
+                                        Toast.makeText(getActivity(), "That email is already in use", Toast.LENGTH_SHORT).show();
+
+                                    } else {
+                                        Log.d(TAG, "onComplete: That email is available.");
+
+                                        // the email is available so update it
+                                        mAuth.getCurrentUser().updateEmail(mEmail.getText().toString())
+                                                .addOnCompleteListener(task11 -> {
+                                                    if (task11.isSuccessful()) {
+                                                        Log.d(TAG, "User email address updated.");
+                                                        Toast.makeText(getActivity(), "email updated", Toast.LENGTH_SHORT).show();
+                                                        mFirebaseMethods.updateEmail(mEmail.getText().toString());
+                                                    }
+                                                });
+                                    }
+                                } catch (NullPointerException e){
+                                    Log.e(TAG, "onComplete: NullPointerException: "  +e.getMessage() );
+                                }
+                            }
+                        });
+
+                    } else {
+                        Log.d(TAG, "onComplete: re-authentication failed.");
+                    }
+
+                });
+    }
 
     private static final String TAG = "EditProfileFragment";
 
@@ -48,6 +103,8 @@ public class EditProfileFragment extends Fragment {
     private EditText mDisplayName, mUsername, mDescription, mEmail, mPhoneNumber;
     private TextView mChangeProfilePhoto;
     private CircleImageView mProfilePhoto;
+
+    private UserSettings mUserSettings;
 
     @Nullable
     @Override
@@ -66,11 +123,18 @@ public class EditProfileFragment extends Fragment {
         //setProfileImage();
         setupFirebaseAuth();
 
+
         //back arrow for navigating back to "ProfileActivity"
-        ImageView backArrow = view.findViewById(R.id.backArrow);
+        ImageView backArrow = (ImageView) view.findViewById(R.id.backArrow);
         backArrow.setOnClickListener(v -> {
             Log.d(TAG, "onClick: navigating back to ProfileActivity");
             getActivity().finish();
+        });
+
+        ImageView checkmark = (ImageView) view.findViewById(R.id.saveChanges);
+        checkmark.setOnClickListener(v -> {
+            Log.d(TAG, "onClick: attempting to save changes.");
+            saveProfileSettings();
         });
 
         return view;
@@ -79,7 +143,9 @@ public class EditProfileFragment extends Fragment {
 
     /**
      * Retrieves the data contained in the widgets and submits it to the database
-     * Before donig so it chekcs to make sure the username chosen is unqiue
+     * Before doing so it checks to make sure the chosen username & email is unique
+     *
+     * use query instead of db_users table child iteration 6000 ~ 2sec
      */
     private void saveProfileSettings(){
         final String displayName = mDisplayName.getText().toString();
@@ -88,35 +154,21 @@ public class EditProfileFragment extends Fragment {
         final String email = mEmail.getText().toString();
         final long phoneNumber = Long.parseLong(mPhoneNumber.getText().toString());
 
+        // if the user made a change to their username
+        if(!mUserSettings.getUser().getUsername().equals(username)){
+            checkIfUsernameExists(username);
+        }
 
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                User user = new User();
-                for(DataSnapshot ds:  dataSnapshot.child(getString(R.string.db_users)).getChildren()){
-                    if(ds.getKey().equals(userID)){
-                        user.setUsername(ds.getValue(User.class).getUsername());
-                    }
-                }
-                Log.d(TAG, "onDataChange: CURRENT USERNAME: " + user.getUsername());
-
-                //case1: the user did not change their username
-                if(user.getUsername().equals(username)){
-
-                }
-                //case2: the user changed their username therefore we need to check for uniqueness
-                else{
-
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
+        // check for email change. 3-step process.
+        // because we register with email, it is saved in the firebase authentication system
+        if(!mUserSettings.getUser().getEmail().equals(email)){
+            // 1. confirm authentication
+            ConfirmPasswordDialog dialog = new ConfirmPasswordDialog();
+            dialog.show(getFragmentManager(), getString(R.string.confirm_password_dialog));
+            dialog.setTargetFragment(EditProfileFragment.this, 1);
+            // 2. check if the email is already registered
+            // 3. saved new email to database & authentication
+        }
     }
 
     private void checkIfUsernameExists(final String username) {
@@ -156,7 +208,7 @@ public class EditProfileFragment extends Fragment {
         Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getUser().getEmail());
         Log.d(TAG, "setProfileWidgets: setting widgets with data retrieving from firebase database: " + userSettings.getUser().getPhone_number());
 
-
+        mUserSettings = userSettings;
         //User user = userSettings.getUser();
         UserAccountSettings settings = userSettings.getSettings();
         UniversalImageLoader.setImage(settings.getProfile_photo(), mProfilePhoto, null, "");
@@ -184,21 +236,18 @@ public class EditProfileFragment extends Fragment {
         myRef = mFirebaseDatabase.getReference();
         userID = mAuth.getCurrentUser().getUid();
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+        mAuthListener = firebaseAuth -> {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
 
 
-                if (user != null) {
-                    // User is signed in
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-                }
-                // ...
+            if (user != null) {
+                // User is signed in
+                Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+            } else {
+                // User is signed out
+                Log.d(TAG, "onAuthStateChanged:signed_out");
             }
+            // ...
         };
 
 
@@ -219,7 +268,6 @@ public class EditProfileFragment extends Fragment {
             }
         });
     }
-
 
     @Override
     public void onStart() {
