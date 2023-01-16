@@ -19,7 +19,6 @@
 
     <!-- Fragment names -->
     <string name="edit_profile_fragment">Edit Profile</string>
-    <string name="confirm_password_dialog">ConfirmPasswordDialog</string>
 
     <!-- activity names -->
     <string name="profile_activity">Profile Activity</string>
@@ -35,5 +34,9 @@
     <string name="profile_fragment">Profile</string>
     <string name="options">Options</string>
     <string name="account_settings">Account Settings</string>
-
+    <string name="string_open_camera">Open Camera</string>
+    <string name="gallery">GALLERY</string>
+    <string name="photo">PHOTO</string>
+    <string name="share_fragment">Share</string>
+    <string name="selected_image">selected_image</string>
 </resources>
